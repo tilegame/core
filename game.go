@@ -1,6 +1,11 @@
 package core
 
-import ()
+import (
+	"fmt"
+	"strings"
+
+	"github.com/tilegame/tiledefs"
+)
 
 // ______________________________________________________________________
 // Constants and Variables
@@ -44,10 +49,29 @@ const exampleMap = `
 ║,,,,,,t,,,,,,,~~~~,,,~~,,,,,║
 ║,,,,,,,,,,,,,~~~~,,,~~~,,,,,║
 ║,,,,t,,,,,,,,,t,,,,,,~~~,,,,║
-║,,,,,t,,,t,,,,,,,,,,,,,,,,,,║
-║,,,,,,,,,,,,,,,,,,,,,,,,,,,,║
 ╚════════════════════════════╝
 `
+
+func (g *Grid) loadMap(s string) {
+	s = strings.Replace(s, " ", "", -1)
+	s = strings.Trim(s, "\n")
+	row := 0
+	col := 0
+	for _, r := range s {
+		if r == '\n' {
+			row++
+			col = 0
+			continue
+		}
+		t, ok := tiledefs.DecodeSymbol(string(r))
+		if !ok {
+			e := fmt.Errorf("Unable to decode symbol: %s", string(r))
+			panic(e)
+		}
+		g.tileMatrix[row][col] = t
+		col++
+	}
+}
 
 // ______________________________________________________________________
 // Type Definitions
@@ -59,7 +83,7 @@ type Game struct {
 }
 
 type Grid struct {
-	tileMatrix [GridSize][GridSize]int
+	tileMatrix [GridSize][GridSize]tiledefs.Tile
 }
 
 type Location struct {
